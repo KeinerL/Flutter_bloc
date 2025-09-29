@@ -12,13 +12,13 @@ class SubjectBloc extends Cubit<SubjectState> {
 
     Future.delayed(Duration(seconds: 1), () {
       if (cod.isNotEmpty && nombre.isNotEmpty) {
-        emit(SubjectHecho());
+        emit(SubjectHecho("Validación exitosa"));
       } else {
-        emit(SubjectFallo());
+        emit(SubjectFallo("Todos los campos son obligatorios"));
       }
     });
   }
 
-  void irFallo() => emit(SubjectFallo());
-  void irHecho() => emit(SubjectHecho());
+  void irFallo([String mensaje = ""]) => emit(SubjectFallo(mensaje));
+  void irHecho([String? resultado]) => emit(SubjectHecho(resultado));
 }
