@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/block/bloc.dart';
-import 'package:flutter_application_1/block/state.dart';
 import 'package:flutter_application_1/vista/services/api_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -24,60 +23,104 @@ class _InicioState extends State<Inicio> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        children: [
-          SizedBox(height: 50),
-          Text("Cod:", style: TextStyle(fontSize: 20)),
-          SizedBox(height: 20),
-          TextField(
-            controller: codController,
-            decoration: InputDecoration(
-              labelText: 'Escribe algo',
-              border: OutlineInputBorder(),
+    return Scaffold(
+      // 🔹 Fondo con gradiente
+      body: Container(
+        color: Colors.white,
+        child: Center(
+          child: Container(
+            width: 400,
+            constraints: const BoxConstraints(maxWidth: 500, maxHeight: 600),
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 20),
+                Text(
+                  "Registro de Usuario",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.indigo.shade800,
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                // Campo Cod
+                TextField(
+                  controller: codController,
+                  decoration: InputDecoration(
+                    labelText: 'Código',
+                    prefixIcon: const Icon(Icons.confirmation_number),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Campo Nombre
+                TextField(
+                  controller: nombreController,
+                  decoration: InputDecoration(
+                    labelText: 'Nombre',
+                    prefixIcon: const Icon(Icons.person),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 40),
+
+                // Botón Guardar
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final cod = codController.text.trim();
+                    final nombre = nombreController.text.trim();
+
+                    final api = ApiService();
+                    final response = await api.createPost(cod, nombre);
+                    context.read<SubjectBloc>().validarCampos(cod, nombre);
+
+                    if (response.statusCode == 201 &&
+                        cod.isNotEmpty &&
+                        nombre.isNotEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content:
+                              Text("Usuario creado: (${response.statusCode})"),
+                        ),
+                      );
+                    } else if (cod.isEmpty || nombre.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Los campos no pueden estar vacíos"),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("Error: (${response.statusCode})"),
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.save, color: Colors.white),
+                  label: const Text("Guardar",
+                      style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.indigo,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 50),
-          Text("Nombre:", style: TextStyle(fontSize: 20)),
-          SizedBox(height: 20),
-          TextField(
-            controller: nombreController,
-            decoration: InputDecoration(
-              labelText: 'Escribe algo',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          SizedBox(height: 80),
-          ElevatedButton(
-            onPressed: () async {
-              final cod = codController.text.trim();
-              final nombre = nombreController.text.trim();
-
-              // Llamamos al servicio
-              final api = ApiService();
-              final response = await api.createPost(cod, nombre);
-              context.read<SubjectBloc>().validarCampos(cod, nombre);
-
-              if (response.statusCode == 201 && cod.isNotEmpty && nombre.isNotEmpty) {
-                // JSONPlaceholder devuelve 201 cuando se crea
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Usuario creado: (${response.statusCode})")),
-                );
-              } else if (cod.isEmpty || nombre.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("los campos no pueden estar vacíos")),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Error: (${response.statusCode})")),
-                );
-              }
-            },
-            child: Text('Guardar'),
-          ),
-
-        ],
+        ),
       ),
     );
   }

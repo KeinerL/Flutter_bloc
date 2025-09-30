@@ -9,85 +9,100 @@ import 'package:flutter_application_1/estados/Inicio.dart';
 import 'package:flutter_application_1/vista/User.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class home extends StatelessWidget {
-  const home({
-    super.key,
-  });
+class Home extends StatelessWidget {
+  const Home({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Container(
-          width: 400,
-          constraints: BoxConstraints(
-            maxWidth: 500,
-            maxHeight: 600,
+      // 🔹 Fondo degradado
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.indigo.shade900, Colors.blue.shade500],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          padding: EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 20,
-                offset: Offset(0, 10),
+        ),
+        child: Center(
+          child: Container(
+            width: 400,
+            constraints: const BoxConstraints(maxWidth: 500, maxHeight: 600),
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(24),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 20,
+                  offset: const Offset(0, 12),
+                ),
+              ],
+              border: Border.all(
+                color: Colors.indigo.shade200,
+                width: 2,
               ),
-            ],
-            border: Border.all(
-              color: Colors.indigo.shade200,
-              width: 2,
             ),
-          ),
-          child: BlocConsumer<SubjectBloc, SubjectState>(
-            listener: (context, state) {
-              if (state is SubjectHecho) {
-                Future.delayed(Duration(seconds: 2), () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const User()),
-                  );
-                });
-              }
-            },
-            builder: (context, state) {
-              if (state is SubjectInicio) {
-                return Inicio();
-              } else if (state is SubjectCargando) {
-                return cargando();
-              } else if (state is SubjectFallo) {
-                return fallo();
-              } else if (state is SubjectHecho) {
-                return hecho();
-              } else {
-                return Container(
-                  padding: EdgeInsets.all(16),
-                  child: Column(
+            child: BlocConsumer<SubjectBloc, SubjectState>(
+              listener: (context, state) {
+                if (state is SubjectHecho) {
+                  Future.delayed(const Duration(seconds: 2), () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const User()),
+                    );
+                  });
+                }
+              },
+              builder: (context, state) {
+                if (state is SubjectInicio) {
+                  return Inicio();
+                } else if (state is SubjectCargando) {
+                  return Cargando();
+                } else if (state is SubjectFallo) {
+                  return Fallo();
+                } else if (state is SubjectHecho) {
+                  return Hecho();
+                } else {
+                  return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(height: 50),
-                      Icon(Icons.info_outline, size: 80, color: Colors.indigo),
-                      SizedBox(height: 24),
+                      const Icon(Icons.info_outline,
+                          size: 90, color: Colors.indigo),
+                      const SizedBox(height: 24),
                       Text(
-                        "No se ha cargado nada, esto es un mensaje de aviso",
+                        "No se ha cargado nada.\nEsto es un mensaje de aviso.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 18,
                           color: Colors.indigo.shade700,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 40),
-                      ElevatedButton(
-                        onPressed: () => context.read<SubjectBloc>().irInicio(),
-                        child: Text("Regresar"),
+                      const SizedBox(height: 40),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () =>
+                              context.read<SubjectBloc>().irInicio(),
+                          icon: const Icon(Icons.refresh, color: Colors.white),
+                          label: const Text("Regresar",
+                              style: TextStyle(color: Colors.white)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.indigo,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
-                  ),
-                );
-              }
-            },
+                  );
+                }
+              },
+            ),
           ),
         ),
       ),
