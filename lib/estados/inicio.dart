@@ -66,11 +66,11 @@ class _InicioState extends State<Inicio> {
                 );
               } else if (cod.isEmpty || nombre.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Los campos no pueden estar vacíos")),
+                  SnackBar(content: Text("los campos no pueden estar vacíos")),
                 );
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Error: ${response.statusCode}")),
+                  SnackBar(content: Text("Error: (${response.statusCode})")),
                 );
               }
             },

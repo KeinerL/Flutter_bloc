@@ -3,13 +3,26 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_application_1/block/user_bloc.dart';
 import 'package:flutter_application_1/block/user_state.dart';
 
-class User extends StatelessWidget {
+class User extends StatefulWidget {
   const User({super.key});
+
+  @override
+  State<User> createState() => _UserState();
+}
+
+class _UserState extends State<User> {
+  final TextEditingController _idController = TextEditingController();
+
+  @override
+  void dispose() {
+    _idController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => UserCubit()..cargarUsuario(1),
+      create: (_) => UserCubit(),
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Detalles del Usuario'),
@@ -60,8 +73,42 @@ class User extends StatelessWidget {
                     },
                     builder: (context, state) {
                       if (state is UserInitial) {
-                        return const Center(
-                            child: Text("Inicia la búsqueda del usuario..."));
+                        // Mostrar campo de búsqueda y botón en el estado inicial
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _idController,
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      labelText: 'ID de usuario',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    final id = int.tryParse(_idController.text.trim());
+                                    if (id != null) {
+                                      context.read<UserCubit>().cargarUsuario(id);
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('ID inválido')),
+                                      );
+                                    }
+                                  },
+                                  child: const Text('Buscar'),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+                            const Text("Consultar información del usuario por ID"),
+                          ],
+                        );
                       } else if (state is UserLoading) {
                         return const Center(child: CircularProgressIndicator());
                       } else if (state is UserSuccess && state.user != null) {
@@ -75,8 +122,17 @@ class User extends StatelessWidget {
                             _infoRow('Correo:', user.email),
                             _infoRow('Teléfono:', user.phone),
                             _infoRow('Página WEB:', user.website),
+                            const SizedBox(height: 24),
+                            ElevatedButton(
+                              onPressed: () {
+                                context.read<UserCubit>().irInicio();
+                                _idController.clear();
+                              },
+                              child: const Text('Nueva búsqueda'),
+                            )
                           ],
                         );
+                        
                       } else if (state is UserFailure) {
                         return Center(
                           child: Text(
